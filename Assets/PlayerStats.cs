@@ -134,7 +134,7 @@ public class PlayerStats : MonoBehaviour
     {
         maxExperience = GetExperienceForNextLevel();
         experienceBar.SetMaxExperience(maxExperience);
-        UpgradePanel.SetActive(true);
+        //UpgradePanel.SetActive(true); // Disable for LevelUp Panel is not avalible yet.
         // Print all stats and level to the debug log
         Debug.Log($"Level Up! Current Level: {level}");
     }
