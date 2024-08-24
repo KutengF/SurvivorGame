@@ -252,4 +252,13 @@ public class PlayerStats : MonoBehaviour
             weapon.ApplyUpgrade(upgradeData);
         }
     }
+
+    public float GetCurrentMoveSpeed()
+    {
+        return moveSpeed;
+    }
+    public float GetCurrentHealth()
+    {
+        return currentHealth;
+    }
 }
