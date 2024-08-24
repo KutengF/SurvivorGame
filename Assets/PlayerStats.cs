@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -15,6 +14,12 @@ public class PlayerStats : MonoBehaviour
     public float critChance = 0.1f;
     public float critDamage = 1.5f;
 
+    // Prestige-based upgrades (to be applied on game start)
+    public float permanentHealthBonus = 0f;
+    public float permanentDamageBonus = 0f;
+    public float permanentMoveSpeedBonus = 0f;
+    // Add more prestige bonuses as needed
+
     // Leveling system
     public float experience = 0f;
     public int level = 1;
@@ -26,8 +31,6 @@ public class PlayerStats : MonoBehaviour
 
     public GameObject gameOverPanel;
 
-
-
     // Item slots and default items
     public int numberOfSlots = 6; // Number of item slots, adjustable in the inspector
     public Transform[] itemSlots; // Array to store item slots
@@ -36,7 +39,7 @@ public class PlayerStats : MonoBehaviour
     private List<PassiveItem> passiveItems = new List<PassiveItem>();
     private List<Weapon> weapons = new List<Weapon>();
 
-    [SerializeField] GameObject UpgradePanel ;
+    [SerializeField] GameObject UpgradePanel;
 
     private void Start()
     {
@@ -69,7 +72,10 @@ public class PlayerStats : MonoBehaviour
             }
         }
 
-        // Initialize current health to max health
+        // Apply permanent prestige upgrades
+        LoadPermanentStats();
+
+        // Initialize current health to max health after applying bonuses
         currentHealth = health;
         experienceBar.SetMaxExperience(maxExperience);
     }
@@ -77,6 +83,7 @@ public class PlayerStats : MonoBehaviour
     private void Update()
     {
         healthBar.SetMaxHealth(health);
+
         // Debug: Press "L" to level up
         if (Input.GetKeyDown(KeyCode.L))
         {
@@ -93,6 +100,32 @@ public class PlayerStats : MonoBehaviour
 
         // Apply passive item effects
         ApplyPassiveItemEffects();
+    }
+
+    // Method to load and apply permanent prestige upgrades at the start of the game
+    private void LoadPermanentStats()
+    {
+        PrestigeUpgradeManager prestigeManager = FindObjectOfType<PrestigeUpgradeManager>();
+
+        if (prestigeManager != null)
+        {
+            foreach (var upgrade in prestigeManager.prestigeUpgrades)
+            {
+                if (upgrade.isUnlocked)
+                {
+                    health += upgrade.permanentHealthIncrease;
+                    damage += upgrade.permanentDamageIncrease;
+                    moveSpeed += upgrade.permanentMoveSpeedIncrease;
+
+                    // Apply more permanent upgrades as necessary
+                }
+            }
+        }
+
+        // Apply permanent bonuses to stats
+        health += permanentHealthBonus;
+        damage += permanentDamageBonus;
+        moveSpeed += permanentMoveSpeedBonus;
     }
 
     private void ApplyPassiveItemEffects()
@@ -125,17 +158,15 @@ public class PlayerStats : MonoBehaviour
     // Calculate the experience required for the next level
     private float GetExperienceForNextLevel()
     {
-        // Example formula for required XP to level up
         return 100 * Mathf.Pow(level, 1.5f); // Adjust this formula as needed
     }
 
-    // Level up the player and increase stats using the curves
+    // Level up the player and increase stats
     private void LevelUp()
     {
         maxExperience = GetExperienceForNextLevel();
         experienceBar.SetMaxExperience(maxExperience);
-        //UpgradePanel.SetActive(true); // Disable for LevelUp Panel is not avalible yet.
-        // Print all stats and level to the debug log
+        //UpgradePanel.SetActive(true); // Disable for LevelUp Panel is not available yet.
         Debug.Log($"Level Up! Current Level: {level}");
     }
 
@@ -159,23 +190,9 @@ public class PlayerStats : MonoBehaviour
     // Handle player death
     private void Die()
     {
-        // You can add your death handling logic here
         Debug.Log("Player has died.");
         Time.timeScale = 0f; // Pause the game
         gameOverPanel.SetActive(true); // Show game over panel
-       
-        // For example, reload the scene or show a game over screen
-    }
-
-    // Get the current stat values using the curves
-    public float GetCurrentHealth()
-    {
-        return currentHealth;
-    }
-
-    public float GetCurrentMoveSpeed()
-    {
-        return moveSpeed;
     }
 
     // Add similar methods for other stats as needed
@@ -217,6 +234,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // Apply temporary upgrades during gameplay
     public void ApplyUpgrade(UpgradeData upgradeData)
     {
         health += health * (upgradeData.healthIncreasePercentage / 100f);
