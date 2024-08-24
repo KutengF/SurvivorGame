@@ -15,10 +15,14 @@ public class PrestigeUpgradeManager : MonoBehaviour
     {
         if (!upgrade.isUnlocked && playerData.prestigeCoins >= upgrade.cost)
         {
+            // Deduct the cost of the upgrade
             playerData.prestigeCoins -= upgrade.cost;
+
+            // Mark the upgrade as unlocked
             upgrade.isUnlocked = true;
             playerData.unlockedUpgrades.Add(upgrade.upgradeName);  // Add to unlocked upgrades
 
+            // Apply the upgrade to the player's stats
             ApplyPrestigeUpgrade(upgrade);
 
             // Save the updated player data
@@ -33,13 +37,13 @@ public class PrestigeUpgradeManager : MonoBehaviour
 
         if (playerStats != null)
         {
-            playerStats.maxHealth += upgrade.permanentHealthIncrease;
+            playerStats.health += upgrade.permanentHealthIncrease;  // Updated to use 'health'
             playerStats.damage += upgrade.permanentDamageIncrease;
             playerStats.moveSpeed += upgrade.permanentMoveSpeedIncrease;
         }
     }
 
-    // Load prestige data from JSON file and apply unlocked upgrades
+    // Load prestige data from the JSON file and apply unlocked upgrades
     private void LoadPrestigeData()
     {
         playerData = SaveManager.LoadPlayerData();  // Load player data (coins and upgrades)
